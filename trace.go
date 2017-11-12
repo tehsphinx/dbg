@@ -18,7 +18,6 @@ func TraceStart(fileName string) error {
 
 	err = trace.Start(f)
 	if err == nil {
-		Blue(fileName)
 		file = fileName
 	}
 	return err
@@ -27,5 +26,11 @@ func TraceStart(fileName string) error {
 func TraceOpenBrowser() error {
 	trace.Stop()
 	cmd := exec.Command("go", "tool", "trace", file)
-	return cmd.Run()
+
+	if b, err := cmd.CombinedOutput(); err != nil {
+		Debug(string(b))
+		Debug("error running go tool trace:", err)
+		return err
+	}
+	return nil
 }

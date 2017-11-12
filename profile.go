@@ -29,9 +29,16 @@ func CPUProfileStart(fileName string) error {
 func CPUProfileOpenBrowser() error {
 	pprof.StopCPUProfile()
 	cmd := exec.Command("go-torch", fileCPU)
-	if err := cmd.Run(); err != nil {
+	if b, err := cmd.CombinedOutput(); err != nil {
+		Debug(string(b))
+		Debug("error running go-torch:", err)
 		return err
 	}
 	cmd = exec.Command("open", "torch.svg")
-	return cmd.Run()
+	if b, err := cmd.CombinedOutput(); err != nil {
+		Debug(string(b))
+		Debug("error opening torch.svg:", err)
+		return err
+	}
+	return nil
 }
