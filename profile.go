@@ -20,8 +20,8 @@ type ProfileType string
 
 const (
 	ProfileWebChart ProfileType = "web"
-	ProfileWebList              = "weblist=.*"
-	ProfileList                 = "list=.*"
+	ProfileWebList              = "weblist=."
+	ProfileList                 = "list=."
 )
 
 func SetExecutableName(executable string) {
@@ -121,8 +121,7 @@ func writeProfile(profileName, fileName string) error {
 	if err := pprof.Lookup(profileName).WriteTo(f, 0); err != nil {
 		return fmt.Errorf("could not write %s profile: %s", profileName, err.Error())
 	}
-	f.Close()
-	return nil
+	return f.Close()
 }
 
 func urlFlameGraph(seconds int, fileName, url string) error {
@@ -158,7 +157,7 @@ func createReport(report, fileName, executable string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
-		Debug("error running go-torch:", err)
+		Debug("error running pprof:", err)
 		return err
 	}
 	return nil
