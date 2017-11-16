@@ -7,6 +7,7 @@ import (
 	"runtime"
 	"runtime/pprof"
 	"strconv"
+	"strings"
 	"sync/atomic"
 )
 
@@ -71,12 +72,26 @@ func GoroutineProfile(profile ProfileType) error {
 	return createReport(getProfileString(profile), fileName, executableFileName)
 }
 
-func HeapProfile(profile ProfileType) error {
+func MemProfile(profile ProfileType) error {
+	return heapProfile(profile)
+}
+
+func MemAllocProfile(profile ProfileType) error {
+	return heapProfile(profile, "--inuse_objects")
+}
+
+func heapProfile(profile ProfileType, flags ...string) error {
 	fileName := getFileName("profile_%d.heap")
-	if err := writeProfile("heap", fileName); err != nil {
+
+	f, err := os.Create(fileName)
+	if err != nil {
 		return err
 	}
-	return createReport(getProfileString(profile), fileName, executableFileName)
+
+	if err := pprof.WriteHeapProfile(f); err != nil {
+		return err
+	}
+	return createReport(getProfileString(profile), fileName, executableFileName, flags...)
 }
 
 func ThreadcreateProfile(profile ProfileType) error {
@@ -151,9 +166,14 @@ func openFlameGraph(cmd *exec.Cmd, svgFile string) error {
 	return nil
 }
 
-func createReport(report, fileName, executable string) error {
-	paramReport := fmt.Sprintf("-%s", report)
-	cmd := exec.Command("go", "tool", "pprof", paramReport, executable, fileName)
+func createReport(report, fileName, executable string, flags ...string) error {
+	args := []string{"tool", "pprof", fmt.Sprintf("-%s", report)}
+	if 0 < len(flags) {
+		args = append(args, flags[0])
+	}
+	args = append(args, executable, fileName)
+
+	cmd := exec.Command("go", args...)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
