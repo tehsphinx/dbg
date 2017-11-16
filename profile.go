@@ -7,7 +7,6 @@ import (
 	"runtime"
 	"runtime/pprof"
 	"strconv"
-	"strings"
 	"sync/atomic"
 )
 
