@@ -30,8 +30,17 @@ const (
 	ColorMagenta = "magenta"
 )
 
-//Sprint formats you string with colors
-func Sprint(color Color, isMap bool, msg ...interface{}) string {
+//Sprint formats your string with colors
+func Sprint(color Color, msg ...interface{}) string {
+	return sprint(color, false, msg...)
+}
+
+//Sprintf formats your string with colors
+func Sprintf(color Color, format string, msg ...interface{}) string {
+	return sprint(color, false, fmt.Sprintf(format, msg...))
+}
+
+func sprint(color Color, isMap bool, msg ...interface{}) string {
 	if color != ColorDefault {
 		c := ansi.ColorCode(fmt.Sprintf("%s+h:black", color))
 		reset := ansi.ColorCode("reset")
@@ -47,7 +56,7 @@ func Sprint(color Color, isMap bool, msg ...interface{}) string {
 }
 
 func dbg(color Color, isMap bool, msg ...interface{}) {
-	fmt.Print(Sprint(color, isMap, msg...))
+	fmt.Print(sprint(color, isMap, msg...))
 }
 
 // Warn prints the given params in Yellow
